@@ -1,7 +1,8 @@
-from scipy.integrate import quad
+from scipy.integrate import quad,odeint
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+
 
 # Constants
 e = 4.8032 * 10 ** (-10)  # Electron charge
@@ -14,15 +15,14 @@ restenergy = 0.511 * 10 ** (6)  # E = mc^2
 k = 8.6173303 * 10 ** (-5)  # Boltzman's constant
 ergtoev = 6.24 * 10 ** (11)  # eV
 evtoerg = 0.16 * 10 ** (-11)  # erg
-N0 = 1.48453 * 10 ** (51)  # number of electrons
-# gamma_cutOff = 2*10**(3)     # Cutoff energy
-doppler_factor = 18  # Bulk gamman is equal to doppler factor
-source_distance = 1.88274 * 10 ** (28)
+N0 = 1.5 * 10 ** (56)  # number of electrons
+doppler_factor = 20  # Bulk gamman is equal to doppler factor
+source_distance = 1.7896929972 * 10 ** (28)
 distance_surf = 4 * math.pi * math.pow(source_distance, 2)  # Luminosity should be divided to suface
-gamma_min = 69  # minimum energy of radiated photon
-gamma_max = 4 * 10 ** 6  # maximum energy of radiated photon
-
-
+gamma_min = 1  # minimum energy of radiated photon
+gamma_max = 2.4*10**4  # maximum energy of radiated photon
+red_shift = 0.9
+blob_radius = 1.6*10**17 # radius of emission region
 # Power law functions
 def PowerLawExpCutOff(alpha, gumma_cutOff, gamma):
 
@@ -41,8 +41,6 @@ def law_selection(cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma,gumma_cutO
         return PowerLawExpCutOff(alpha, gumma_cutOff, gamma)
     elif (cutOff_bool ==0) and (broken_bool == 1):
         return  BrokenPowerLaw(alpha_1,alpha_2,gamma_break,gamma)
-
-
 
 # This function shows the energy which have many emitted photons(characteristic energy  )
 def char_energy(B, gamma):
@@ -78,7 +76,7 @@ def luminosity(B, alpha,alpha_1,alpha_2,photon_eng, gumma_cutOff,gamma_break, cu
 
 
 def flux_our_system(B, alpha,alpha_1,alpha_2,photon_eng, gumma_cutOff,gamma_break, cutOff_bool,broken_bool):
-    return (doppler_factor**4)*1/(evtoerg*distance_surf)*luminosity(B, alpha,alpha_1,alpha_2,photon_eng/doppler_factor, gumma_cutOff,gamma_break, cutOff_bool,broken_bool)
+    return (doppler_factor**4)*1/(evtoerg*distance_surf)*luminosity(B, alpha,alpha_1,alpha_2,photon_eng*(1+red_shift)/doppler_factor, gumma_cutOff,gamma_break, cutOff_bool,broken_bool)
 
 
 def synchrotron_plotter(B, alpha,alpha_1,alpha_2, gumma_cutOff,gamma_break, cutOff_bool,broken_bool):
