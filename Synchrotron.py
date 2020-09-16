@@ -1,4 +1,4 @@
-from scipy.integrate import quad,odeint
+from scipy.integrate import quad,trapz
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -20,13 +20,14 @@ doppler_factor = 20  # Bulk gamman is equal to doppler factor
 source_distance = 1.7896929972 * 10 ** (28)
 distance_surf = 4 * math.pi * math.pow(source_distance, 2)  # Luminosity should be divided to suface
 gamma_min = 1  # minimum energy of radiated photon
-gamma_max = 2.4*10**4  # maximum energy of radiated photon
+gamma_max = 2.4*10**4  # maximum energy of a radiated photon
 red_shift = 0.9
 blob_radius = 1.6*10**17 # radius of emission region
+inverse_restEng = 1/restenergy # for simplicity
 # Power law functions
-def PowerLawExpCutOff(alpha, gumma_cutOff, gamma):
+def PowerLawExpCutOff(alpha, gamma_cutOff, gamma):
 
-    return N0 * (gamma ** (-alpha)) * np.exp(-(gamma / gumma_cutOff))
+    return N0 * (gamma ** (-alpha)) * np.exp(-(gamma / gamma_cutOff))
 
 
 def BrokenPowerLaw(alpha_1,alpha_2,gamma_break,gamma):
@@ -36,9 +37,9 @@ def BrokenPowerLaw(alpha_1,alpha_2,gamma_break,gamma):
         return gamma_break**(alpha_2-alpha_1)*N0*gamma**(-alpha_2)
 
 
-def law_selection(cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma,gumma_cutOff,gamma_break):
+def law_selection(cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma,gamma_cutOff,gamma_break):
     if (cutOff_bool ==1) and (broken_bool == 0):
-        return PowerLawExpCutOff(alpha, gumma_cutOff, gamma)
+        return PowerLawExpCutOff(alpha, gamma_cutOff, gamma)
     elif (cutOff_bool ==0) and (broken_bool == 1):
         return  BrokenPowerLaw(alpha_1,alpha_2,gamma_break,gamma)
 
@@ -61,32 +62,32 @@ def diff_spectrum(photon_eng, B, gamma):
 
 
 
-def emission_spectrum(B, alpha,alpha_1,alpha_2,photon_eng, gumma_cutOff,gamma_break, cutOff_bool,broken_bool):
+def emission_spectrum(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
     return \
-    quad(lambda j: (10 ** j) * (math.log(10)) * diff_spectrum(photon_eng, B, 10 ** j) * law_selection(cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,10 ** j,gumma_cutOff,gamma_break),
+    quad(lambda j: (10 ** j) * (math.log(10)) * diff_spectrum(photon_eng, B, 10 ** j) * law_selection(cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,10 ** j,gamma_cutOff,gamma_break),
          np.log10(gamma_min), np.log10(gamma_max))[0]
 
 
 
 
-def luminosity(B, alpha,alpha_1,alpha_2,photon_eng, gumma_cutOff,gamma_break, cutOff_bool,broken_bool):
-    return photon_eng**2*emission_spectrum(B, alpha,alpha_1,alpha_2,photon_eng, gumma_cutOff,gamma_break, cutOff_bool,broken_bool)
+def luminosity(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
+    return photon_eng**2*emission_spectrum(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool)
 
 
 
 
-def flux_our_system(B, alpha,alpha_1,alpha_2,photon_eng, gumma_cutOff,gamma_break, cutOff_bool,broken_bool):
-    return (doppler_factor**4)*1/(evtoerg*distance_surf)*luminosity(B, alpha,alpha_1,alpha_2,photon_eng*(1+red_shift)/doppler_factor, gumma_cutOff,gamma_break, cutOff_bool,broken_bool)
+def flux_our_system(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
+    return (doppler_factor**4)*1/(evtoerg*distance_surf)*luminosity(B, alpha,alpha_1,alpha_2,photon_eng*(1+red_shift)/doppler_factor, gamma_cutOff,gamma_break, cutOff_bool,broken_bool)
 
 
-def synchrotron_plotter(B, alpha,alpha_1,alpha_2, gumma_cutOff,gamma_break, cutOff_bool,broken_bool):
+def synchrotron_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
     energy_axis = np.logspace(-5, 9, num=100)
-    # for  each point of energy_axis should be calcilated flux_our_system(as a Y axis)
-    synchrotron_flux = np.array([flux_our_system(B, alpha,alpha_1,alpha_2, i, gumma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis])
+    # for  each point of energy_axis should be calculated flux_our_system(as a Y axis)
+    synchrotron_flux = np.array([flux_our_system(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis])
     plt.figure(1,figsize=(16,4))
     plt.loglog(energy_axis,synchrotron_flux,color="red")
     plt.xlim(10**-8,10**8)
-    plt.ylim(10**-17,10**-11)
+    plt.ylim(10**-20,10**-8)
     plt.show()
 
 
