@@ -10,8 +10,8 @@ class Plotter_GUI:
         self.master = master
         master.title("Plotter")
         master.geometry('{}x{}'.format(master.winfo_screenwidth(), master.winfo_screenmmheight()))
-        self.synchrotron_btn = Button(master, text="Synchrotron", height=10, width=10, bg="blue",command = self.param_winwow).place(relx=0.1, rely=0.3, anchor='e')
-        #self.self_synchrotron_btn = Button(master, text="SSC", height=10, width=10, bg="red",command=self.param_winwow).place(relx=0.5, rely=0.3, anchor='e')
+        self.synchrotron_btn      = Button(master, text="Synchrotron", height=10, width=10, bg="blue",command = self.param_winwow).place(relx=0.1, rely=0.3, anchor='e')
+        self.self_synchrotron_btn = Button(master, text="SSC", height=10, width=10, bg="red",command=self.param_winwow).place(relx=0.5, rely=0.3, anchor='e')
 
         #self.inverse_compton_btn = Button(master, text="IC", height=10, width=10, bg="green",command=self.param_winwow).place(relx=0.9, rely=0.3, anchor='e')
 
@@ -63,7 +63,7 @@ class Plotter_GUI:
         label_cutOff.grid(row=2, column=0)
         self.entry_cutOff = Entry(self.window, width=20, relief=SUNKEN)
         self.entry_cutOff.grid(row=2, column=1)
-        plt_btn = Button(self.window,text = "Plot",bg = "red",command = self.ploting_func)
+        plt_btn = Button(self.window,text = "Plot",bg = "red",command = self.synchrotron_plotFunc)
         plt_btn.grid(row = 20,column = 20)
 
 
@@ -97,11 +97,11 @@ class Plotter_GUI:
         label_break.grid(row=3, column=2)
         self.entry_break = Entry(self.window, width=20, relief=SUNKEN)
         self.entry_break.grid(row=3, column=3)
-        plt_btn = Button(self.window,text = "Plot",bg = "red",command = self.ploting_func)
+        plt_btn = Button(self.window,text = "Plot",bg = "red",command = self.synchrotron_plotFunc)
         plt_btn.grid(row = 20,column = 20)
 
 
-    def ploting_func(self):
+    def synchrotron_plotFunc(self):
         """
         After chosing one of laws(using checkboxes) correspondig  values of parameters will be  taken from labels
         below of the function synchrotron_plotter is called  from SYnchrotron.py module
@@ -126,6 +126,8 @@ class Plotter_GUI:
             return "Choose something"
         synchrotron_plotter(self.magfield, self.alpha,self.alpha1,self.alpha2, self.cutOff,self.broken,self.CutOff_Law.get(),self.Broken_Law.get())
         self.master.destroy()
+
+
 
 
 root = Tk()

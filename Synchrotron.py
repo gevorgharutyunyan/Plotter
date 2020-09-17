@@ -57,13 +57,13 @@ def flux_our_system(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_brea
 
 
 def synchrotron_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
-    energy_axis = np.logspace(-5, 2, num=25)
+    energy_axis = np.logspace(-9, 4, num=25)
     # for  each point of energy_axis should be calculated flux_our_system(as a Y axis)
     synchrotron_flux = np.array([flux_our_system(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis])
-    #plt.figure(1,figsize=(16,4))
-    #plt.loglog(energy_axis,synchrotron_flux,color="red")
-    #plt.xlim(10**-8,10**8)
-    #plt.ylim(10**-20,10**-8)
-    #plt.show()
+    plt.figure(1,figsize=(16,4))
+    plt.loglog(energy_axis,synchrotron_flux,color="red")
+    plt.xlim(10**-8,10**8)
+    plt.ylim(10**-13,10**-8)
+    plt.show()
     return  synchrotron_flux
 
