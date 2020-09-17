@@ -58,13 +58,15 @@ def ssc_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
     plt.figure(1,figsize=(16,4))
 
     energy_axis_synch = np.logspace(-5,2, num=25)
-    # from Synchrotron module is being called synchrotron_plotter which returns y-axs values
-    synch_flux = synchrotron_plotter(B, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break, cutOff_bool, broken_bool)
+
+    # for  each point of energy_axis should be calculated flux_our_system(as a Y axis)
+    synchrotron_flux = np.array([flux_our_system(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis_synch])
+
     fig, ax1 = plt.subplots(figsize=(16, 4))
     color = 'tab:red'
     ax1.set_xlabel('E [eV]')
     ax1.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)
-    ax1.plot(energy_axis_synch, synch_flux, color=color)
+    ax1.plot(energy_axis_synch, synchrotron_flux, color=color)
     ax1.tick_params(axis='y', labelcolor=color)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
@@ -82,4 +84,4 @@ def ssc_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
 
 
 
-ssc_plotter(0.07, None,2.4,4.5, None,2200, 0,1)
+#ssc_plotter(0.07, None,2.4,4.5, None,2200, 0,1)

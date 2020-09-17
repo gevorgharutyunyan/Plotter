@@ -65,5 +65,4 @@ def synchrotron_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutO
     plt.xlim(10**-8,10**8)
     plt.ylim(10**-13,10**-8)
     plt.show()
-    return  synchrotron_flux
 
