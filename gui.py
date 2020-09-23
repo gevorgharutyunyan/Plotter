@@ -24,16 +24,30 @@ class Plotter_GUI:
         self.synch_bool = IntVar()
         self.ssc_bool = IntVar()
         self.ic_bool = IntVar()
-        self.synchrotron_btn = Checkbutton(master, text="Synchrotron", height=10, width=10, variable=self.synch_bool,
-                                           onvalue=1, offvalue=0, command=self.param_winwow).place(relx=0.1, rely=0.3,
+        self.synchrotron_btn = Checkbutton(master, text="Synchrotron", height=10, width=10,state="normal", variable=self.synch_bool,
+                                           onvalue=1, offvalue=0, command= self.param_winwow).place(relx=0.1, rely=0.3,
                                                                                                    anchor='e')
-        self.self_synchrotron_btn = Checkbutton(master, text="SSC", height=10, width=10, variable=self.ssc_bool,
+        self.self_synchrotron_btn = Checkbutton(master, text="SSC", height=10, width=10,state="normal", variable=self.ssc_bool,
                                                 onvalue=1, offvalue=0, command=self.param_winwow).place(relx=0.5,
                                                                                                         rely=0.3,
                                                                                                         anchor='e')
-        self.inverse_compton_btn = Checkbutton(master, text="IC", height=10, width=10, variable=self.ic_bool, onvalue=1,
-                                               offvalue=0, command=self.param_winwow).place(relx=0.9, rely=0.3,
+        self.inverse_compton_btn = Checkbutton(master, text="IC", height=10, width=10,state="normal", variable=self.ic_bool, onvalue=1,
+                                               offvalue=0, command= self.param_winwow).place(relx=0.9, rely=0.3,
                                                                                             anchor='e')
+
+        """     
+        def disable_synchrotron_and_ssc(self):
+            self.synchrotron_btn.config(state=DISABLED)
+            self.self_synchrotron_btn.config(state=DISABLED)
+
+        def disable_ssc_and_eic(self):
+            self.self_synchrotron_btn.config(state=DISABLED)
+            self.inverse_compton_btn.config(state=DISABLED)
+    
+        def disable_eic_and_synchrotron(self):
+            self.synchrotron_btn.config(state=DISABLED)
+            self.inverse_compton_btn.config(state=DISABLED)
+        """
 
     # Only can choose one spectrum law by choosing one of this law second one will be disabled.
     def disable_broken(self):
@@ -59,6 +73,20 @@ class Plotter_GUI:
         self.Broken_PL = Checkbutton(self.window, text='Broken_PL', state="normal", variable=self.Broken_Law, onvalue=1,
                                      offvalue=0, command=lambda: [self.open_broken_param(), self.disable_cutOff()])
         self.Broken_PL.grid(row=5, column=1)
+        if self.ic_bool.get() == 1:
+            self.cmb = Checkbutton(self.window, text='cmb', state="normal",
+                                         onvalue=1,
+                                         offvalue=0)
+            self.cmb.grid(row=6, column=0)
+            self.blr = Checkbutton(self.window, text='blr', state="normal",
+                                         onvalue=1,
+                                         offvalue=0)
+            self.blr.grid(row=7, column=0)
+            self.torus = Checkbutton(self.window, text='torus', state="normal",
+                                         onvalue=1,
+                                         offvalue=0)
+            self.torus.grid(row=8, column=0)
+
 
     def open_cutoff_param(self):
         """
