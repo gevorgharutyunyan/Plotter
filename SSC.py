@@ -35,13 +35,12 @@ def ssc_eng_density(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_brea
 
 
 # for SSC mechanisms spectrum from many electrons is calculated by this formula
-def ssc_el_dist(photon_eng,synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break):
+def ic_el_dist(photon_eng,synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break):
     return quad(lambda i:(10**i)*np.log(10)*(law_selection(cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,10**i,gamma_cutOff,gamma_break)/10**(2*i))*if_statement(10**i,photon_eng,synch_photon),np.log10(low_limit_ssc(photon_eng/restenergy,synch_photon/restenergy)),np.log10(gamma_max))[0]
 
 
-
 def ssc_luminosity(synch_photon,B,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break):
-    return  quad(lambda photon_eng: 0.75*c*sigma* (synch_photon**2)*(ssc_eng_density(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break,cutOff_bool,broken_bool)/photon_eng**3)*ssc_el_dist(photon_eng,synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break),0,np.inf)[0]
+    return  quad(lambda photon_eng: 0.75*c*sigma* (synch_photon**2)*(ssc_eng_density(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break,cutOff_bool,broken_bool)/photon_eng**3)*ic_el_dist(photon_eng,synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break),0,np.inf)[0]
 
 # Luminosity = Flux*(4*pi*R^2)
 def ssc_flux(synch_photon,B,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break):
