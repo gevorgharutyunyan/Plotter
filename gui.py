@@ -105,7 +105,7 @@ class Plotter_GUI:
         self.torus_field = IntVar()
         self.fields.title("Photon Fields")
         self.cmb = Checkbutton(self.fields, text='CMB', state="normal", variable=self.cmb_field, onvalue=1,
-                                     offvalue=0)
+                                      offvalue=0)
 
         self.cmb.grid(row=1, column=0)
         self.blr = Checkbutton(self.fields, text='BLR', state="normal", variable=self.blr_field, onvalue=1,
