@@ -6,6 +6,11 @@ from Constants import*
 def low_limit_ssc(photon_eng,synch_photon):
     return 0.5*synch_photon*(1+np.sqrt(1+1/(synch_photon*photon_eng)))
 
+"""
+Cross section defines probability of an interaction between photon and electron.
+Photons can be produced after synchrotron radiation(SSC), come from dusty Torus,
+BLR and CMB.
+"""
 #####################################################################################
 # fixme                        Cross-Section
 #####################################################################################
@@ -24,6 +29,7 @@ def if_statement(gamma,photon_eng,synch_photon):
         return cross_section(gamma,photon_eng,synch_photon)
     else:
         return 0
+
 #####################################################################################
 # fixme             EnergyDensity-Distribution-Luminosity-Flux
 #####################################################################################
@@ -72,8 +78,9 @@ def ssc_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
 
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
+    #Needs second y axis because low and high energy component scales do not coincide.
     color = 'tab:blue'
-    ax2.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)  # we already handled the x-label with ax1
+    ax2.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)
     ax2.plot(energy_axis_ssc, self_synchrotron_flux, color=color)
     ax2.tick_params(axis='y', labelcolor=color)
     ax2.set_yscale('log')

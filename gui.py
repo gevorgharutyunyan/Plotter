@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 import numpy as np
 from Synchrotron import *
 from SSC import *
@@ -23,15 +24,16 @@ class Plotter_GUI:
         self.synch_bool = IntVar()
         self.ssc_bool = IntVar()
         self.ic_bool = IntVar()
-        self.synchrotron_btn = Checkbutton(main, text="Synchrotron", height=10, width=10,state="normal", variable=self.synch_bool,
-                                           onvalue=1, offvalue=0, command= self.param_winwow).place(relx=0.1, rely=0.3,
-                                                                                                   anchor='e')
-        self.self_synchrotron_btn = Checkbutton(main, text="SSC", height=10, width=10,state="normal", variable=self.ssc_bool,
-                                                onvalue=1, offvalue=0, command=self.param_winwow).place(relx=0.5,
+        self.synchrotron_btn = Checkbutton(main, text="Synchrotron", state="normal", variable=self.synch_bool,
+                                           onvalue=1, offvalue=0,command= self.param_winwow,bg="#E8FFDB").place(relx=0.1, rely=0.3,
+                                                                                      anchor='e')
+
+        self.self_synchrotron_btn = Checkbutton(main, text="SSC",state="normal", variable=self.ssc_bool,
+                                                onvalue=1, offvalue=0, command=self.param_winwow,bg="#E8FFDB").place(relx=0.5,
                                                                                                         rely=0.3,
                                                                                                         anchor='e')
-        self.inverse_compton_btn = Checkbutton(main, text="IC", height=10, width=10,state="normal", variable=self.ic_bool, onvalue=1,
-                                               offvalue=0, command= self.param_winwow).place(relx=0.9, rely=0.3,
+        self.inverse_compton_btn = Checkbutton(main, text="IC", state="normal", variable=self.ic_bool, onvalue=1,
+                                               offvalue=0, command= self.param_winwow,bg="#E8FFDB").place(relx=0.9, rely=0.3,
                                                                                             anchor='e')
 
         """     
@@ -62,7 +64,7 @@ class Plotter_GUI:
         After clicking one of them open_cutoff_param(open_broken_param) function will be called and
         opened labels should be filled otherwise code won't work.
         """
-        self.window = Toplevel()
+
         self.window.title("SED parameters")
         self.CutOff_Law = IntVar()
         self.Broken_Law = IntVar()
@@ -265,5 +267,6 @@ class Plotter_GUI:
 
 
 root = Tk()
+root.configure(background='#E8FFDB')
 Plotter_GUI(root)
 root.mainloop()
