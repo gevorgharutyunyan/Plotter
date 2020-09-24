@@ -13,44 +13,51 @@ class Plotter_GUI:
 
     def __init__(self, main):
         """
-        There are 3 main radiation mechanisms in jets- Synchrotron radiation, Synchrotron Self-Compton and Inverse Compton.
-        For each one there is a checkbutton
+        There are 3 main radiation mechanisms in jets of blazars- Synchrotron radiation, Synchrotron Self-Compton and
+        Inverse Compton.For each one there is a checkbutton:
+        self.synchrotron_btn
+        self.self_synchrotron_btn
+        self.inverse_compton_btn.
         """
 
-        self.main = main
+        self.main = main # It is a main window where are taking place check buttons for each mechanisms.
         main.title("Plotter")
+        # geometry method gets sizes of your display.
         main.geometry('{}x{}'.format(main.winfo_screenwidth(), main.winfo_screenmmheight()))
+
+        # For all buttons we use IntVar which means On value is 1 off value is 0. Using button.get() method we get state
+        # of a button and it is useful for checking is button pressed or not.
 
         self.synch_bool = IntVar()
         self.ssc_bool = IntVar()
         self.ic_bool = IntVar()
+
         self.synchrotron_btn = Checkbutton(main, text="Synchrotron", state="normal", variable=self.synch_bool,
-                                           onvalue=1, offvalue=0,command= self.param_winwow,bg="#E8FFDB").place(relx=0.1, rely=0.3,
-                                                                                      anchor='e')
-
+                                           onvalue=1, offvalue=0,command=lambda:[self.param_winwow(),self.disable_ssc_and_eic()] ,bg="#E8FFDB")
+        self.synchrotron_btn.place(relx=0.1, rely=0.3, anchor='e')
         self.self_synchrotron_btn = Checkbutton(main, text="SSC",state="normal", variable=self.ssc_bool,
-                                                onvalue=1, offvalue=0, command=self.param_winwow,bg="#E8FFDB").place(relx=0.5,
-                                                                                                        rely=0.3,
-                                                                                                        anchor='e')
+                                                onvalue=1, offvalue=0, command=lambda:[self.param_winwow(),self.disable_eic_and_synchrotron()],bg="#E8FFDB")
+        self.self_synchrotron_btn.place(relx=0.5, rely=0.3,anchor='e')
         self.inverse_compton_btn = Checkbutton(main, text="IC", state="normal", variable=self.ic_bool, onvalue=1,
-                                               offvalue=0, command= self.param_winwow,bg="#E8FFDB").place(relx=0.9, rely=0.3,
-                                                                                            anchor='e')
+                                               offvalue=0, command=lambda:[self.param_winwow(),self.disable_synchrotron_and_ssc()],bg="#E8FFDB")
 
-        """     
-        def disable_synchrotron_and_ssc(self):
-            self.synchrotron_btn.config(state=DISABLED)
-            self.self_synchrotron_btn.config(state=DISABLED)
+        # When we write Checkbutton(......).place(...) type will be None.Because of that should be written separately.
+        self.inverse_compton_btn.place(relx=0.9, rely=0.3, anchor='e')
 
-        def disable_ssc_and_eic(self):
-            self.self_synchrotron_btn.config(state=DISABLED)
-            self.inverse_compton_btn.config(state=DISABLED)
-    
-        def disable_eic_and_synchrotron(self):
-            self.synchrotron_btn.config(state=DISABLED)
-            self.inverse_compton_btn.config(state=DISABLED)
-        """
+    # After choosing one of mechanisms(check buttons) the rested buttons will be disabled.
+    def disable_synchrotron_and_ssc(self):
+        self.synchrotron_btn.config(state=DISABLED)
+        self.self_synchrotron_btn.config(state=DISABLED)
 
-    # Only can choose one spectrum law by choosing one of this law second one will be disabled.
+    def disable_ssc_and_eic(self):
+        self.self_synchrotron_btn.config(state=DISABLED)
+        self.inverse_compton_btn.config(state=DISABLED)
+
+    def disable_eic_and_synchrotron(self):
+        self.synchrotron_btn.config(state=DISABLED)
+        self.inverse_compton_btn.config(state=DISABLED)
+
+    # Only can choose one spectrum law. By choosing one of this law second one will be disabled.
     def disable_broken(self):
         self.Broken_PL.config(state=DISABLED)
 
@@ -60,20 +67,26 @@ class Plotter_GUI:
     def param_winwow(self):
         """
         This function is responsible for selecting from two power laws cutOff and broken.
-        Calling this function in the window will apear two checkboxes with CutOff_PL and Broken_PL names.
+        Calling this function in the window will appear two checkboxes with names CutOff_PL and Broken_PL.
         After clicking one of them open_cutoff_param(open_broken_param) function will be called and
         opened labels should be filled otherwise code won't work.
         """
 
-        self.window.title("SED parameters")
-        self.CutOff_Law = IntVar()
-        self.Broken_Law = IntVar()
-        self.CutOff_PL = Checkbutton(self.window, text='CutOff_PL', state="normal", variable=self.CutOff_Law, onvalue=1,
-                                     offvalue=0, command=lambda: [self.open_cutoff_param(), self.disable_broken()])
-        self.CutOff_PL.grid(row=5, column=0)
-        self.Broken_PL = Checkbutton(self.window, text='Broken_PL', state="normal", variable=self.Broken_Law, onvalue=1,
-                                     offvalue=0, command=lambda: [self.open_broken_param(), self.disable_cutOff()])
-        self.Broken_PL.grid(row=5, column=1)
+        # Without this if statement, param window will be opened regardless on-off(1 or 0) value of a button.
+        # Now it will be opened only in case of 1 (button is on).
+        if self.ic_bool.get() ==1 or self.synch_bool.get()==1 or self.ssc_bool.get()==1:
+            self.window = Toplevel()
+            self.window.title("SED parameters")
+            self.CutOff_Law = IntVar()
+            self.Broken_Law = IntVar()
+            self.CutOff_PL = Checkbutton(self.window, text='CutOff_PL', state="normal", variable=self.CutOff_Law, onvalue=1,
+                                         offvalue=0, command=lambda: [self.open_cutoff_param(), self.disable_broken()])
+            self.CutOff_PL.grid(row=5, column=0)
+            self.Broken_PL = Checkbutton(self.window, text='Broken_PL', state="normal", variable=self.Broken_Law, onvalue=1,
+                                         offvalue=0, command=lambda: [self.open_broken_param(), self.disable_cutOff()])
+            self.Broken_PL.grid(row=5, column=1)
+
+        #Only in case of inverse compton should be an extra button for photon fields (There are three photon fields).
         if self.ic_bool.get() == 1:
             self.photon_fields = Checkbutton(self.window, text='Photon fields', state="normal",
                                          onvalue=1,offvalue=0,command = self.choose_field)
@@ -263,7 +276,11 @@ class Plotter_GUI:
         elif self.cmb_field.get() == 0 and self.blr_field.get() == 0 and self.torus_field.get() == 1:
             torus_plotter(self.magfield, self.alpha, self.alpha1, self.alpha2, self.cutOff, self.broken,
                     self.CutOff_Law.get(), self.Broken_Law.get())
-        self.main.destroy()
+
+            self.main.destroy()
+
+
+
 
 
 root = Tk()
