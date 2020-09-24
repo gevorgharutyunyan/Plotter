@@ -10,28 +10,27 @@ class Plotter_GUI:
     Plotter_GUI class
     """
 
-    def __init__(self, master):
+    def __init__(self, main):
         """
         There are 3 main radiation mechanisms in jets- Synchrotron radiation, Synchrotron Self-Compton and Inverse Compton.
         For each one there is a checkbutton
-        :param master:
         """
 
-        self.master = master
-        master.title("Plotter")
-        master.geometry('{}x{}'.format(master.winfo_screenwidth(), master.winfo_screenmmheight()))
+        self.main = main
+        main.title("Plotter")
+        main.geometry('{}x{}'.format(main.winfo_screenwidth(), main.winfo_screenmmheight()))
 
         self.synch_bool = IntVar()
         self.ssc_bool = IntVar()
         self.ic_bool = IntVar()
-        self.synchrotron_btn = Checkbutton(master, text="Synchrotron", height=10, width=10,state="normal", variable=self.synch_bool,
+        self.synchrotron_btn = Checkbutton(main, text="Synchrotron", height=10, width=10,state="normal", variable=self.synch_bool,
                                            onvalue=1, offvalue=0, command= self.param_winwow).place(relx=0.1, rely=0.3,
                                                                                                    anchor='e')
-        self.self_synchrotron_btn = Checkbutton(master, text="SSC", height=10, width=10,state="normal", variable=self.ssc_bool,
+        self.self_synchrotron_btn = Checkbutton(main, text="SSC", height=10, width=10,state="normal", variable=self.ssc_bool,
                                                 onvalue=1, offvalue=0, command=self.param_winwow).place(relx=0.5,
                                                                                                         rely=0.3,
                                                                                                         anchor='e')
-        self.inverse_compton_btn = Checkbutton(master, text="IC", height=10, width=10,state="normal", variable=self.ic_bool, onvalue=1,
+        self.inverse_compton_btn = Checkbutton(main, text="IC", height=10, width=10,state="normal", variable=self.ic_bool, onvalue=1,
                                                offvalue=0, command= self.param_winwow).place(relx=0.9, rely=0.3,
                                                                                             anchor='e')
 
@@ -74,20 +73,34 @@ class Plotter_GUI:
                                      offvalue=0, command=lambda: [self.open_broken_param(), self.disable_cutOff()])
         self.Broken_PL.grid(row=5, column=1)
         if self.ic_bool.get() == 1:
-            self.cmb = Checkbutton(self.window, text='cmb', state="normal",
-                                         onvalue=1,
-                                         offvalue=0)
-            self.cmb.grid(row=6, column=0)
-            self.blr = Checkbutton(self.window, text='blr', state="normal",
-                                         onvalue=1,
-                                         offvalue=0)
-            self.blr.grid(row=7, column=0)
-            self.torus = Checkbutton(self.window, text='torus', state="normal",
-                                         onvalue=1,
-                                         offvalue=0)
-            self.torus.grid(row=8, column=0)
+            self.photon_fields = Checkbutton(self.window, text='Photon fields', state="normal",
+                                         onvalue=1,offvalue=0,command = self.choose_field)
+            self.photon_fields.grid(row=6, column=0)
 
+    def choose_field(self):
+        """
+        This function creates a window where are taking place three checkboxes for photon fields.
+        Checking each checkbox will call a function which will plot SED taking account
+        considered photon fields(CMB,BLR,Torus).
 
+        """
+        self.fields    = Toplevel()
+        self.cmb_field = IntVar()
+        self.blr_field = IntVar()
+        self.torus_field = IntVar()
+        self.fields.title("Photon Fields")
+        self.cmb = Checkbutton(self.fields, text='CMB', state="normal", variable=self.cmb_field, onvalue=1,
+                                     offvalue=0)
+
+        self.cmb.grid(row=1, column=0)
+        self.blr = Checkbutton(self.fields, text='BLR', state="normal", variable=self.blr_field, onvalue=1,
+                                     offvalue=0)
+
+        self.blr.grid(row=1, column=2)
+        self.torus = Checkbutton(self.fields, text='Torus', state="normal", variable=self.torus_field, onvalue=1,
+                                     offvalue=0)
+
+        self.torus.grid(row=1, column=4)
     def open_cutoff_param(self):
         """
          For cutOff law there are three basic parameters.
@@ -187,7 +200,7 @@ class Plotter_GUI:
             return "Choose something"
         synchrotron_plotter(self.magfield, self.alpha, self.alpha1, self.alpha2, self.cutOff, self.broken,
                             self.CutOff_Law.get(), self.Broken_Law.get())
-        self.master.destroy()
+        self.main.destroy()
 
     def ssc_plotFunc(self):
         """
@@ -214,7 +227,7 @@ class Plotter_GUI:
             return "Choose something"
         ssc_plotter(self.magfield, self.alpha, self.alpha1, self.alpha2, self.cutOff, self.broken,
                     self.CutOff_Law.get(), self.Broken_Law.get())
-        self.master.destroy()
+        self.main.destroy()
 
     def eic_plotFunc(self):
         """
@@ -239,9 +252,16 @@ class Plotter_GUI:
             self.cutOff = None
         else:
             return "Choose something"
-        cmb_plotter(self.magfield, self.alpha, self.alpha1, self.alpha2, self.cutOff, self.broken,
+        if  self.cmb_field.get() == 1 and self.blr_field.get() == 0 and self.torus_field.get() == 0:
+            cmb_plotter(self.magfield, self.alpha, self.alpha1, self.alpha2, self.cutOff, self.broken,
                     self.CutOff_Law.get(), self.Broken_Law.get())
-        self.master.destroy()
+        elif self.cmb_field.get() == 0 and self.blr_field.get() == 1 and self.torus_field.get() == 0:
+            blr_plotter( self.magfield,self.alpha, self.alpha1, self.alpha2, self.cutOff, self.broken,
+                    self.CutOff_Law.get(), self.Broken_Law.get())
+        elif self.cmb_field.get() == 0 and self.blr_field.get() == 0 and self.torus_field.get() == 1:
+            torus_plotter(self.magfield, self.alpha, self.alpha1, self.alpha2, self.cutOff, self.broken,
+                    self.CutOff_Law.get(), self.Broken_Law.get())
+        self.main.destroy()
 
 
 root = Tk()

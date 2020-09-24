@@ -22,15 +22,15 @@ def cmb_luminosity(synch_photon,cutOff_bool, broken_bool, alpha, alpha_1, alpha_
                                                                              gamma_cutOff, gamma_break), 0, np.inf)[0]
 
 def cmb_flux(synch_photon,cutOff_bool, broken_bool, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break):
-    return (doppler_factor**4*evtoerg*cmb_luminosity(synch_photon/doppler_factor,cutOff_bool, broken_bool, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break))#/distance_surf
+    return (doppler_factor**4*evtoerg*cmb_luminosity(synch_photon/doppler_factor,cutOff_bool, broken_bool, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break))/distance_surf
 
 #####################################################################################
 # fixme                           CMB   Plotting
 #####################################################################################
 def cmb_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
-    energy_axis_cmb = np.logspace(2, 9, num=25)
+    energy_axis_cmb = np.logspace(2, 11, num=25)
     # for  each point of energy_axis_cmb should be calculated flux_our_system(as an Y axis)
-    cosmic_background = np.array([ssc_flux(j,B,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_cmb])
+    cosmic_background = np.array([cmb_flux(j,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_cmb])
     plt.figure(1,figsize=(16,4))
 
     energy_axis_synch = np.logspace(-5,2, num=25)
@@ -84,9 +84,9 @@ def blr_flux(synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cu
 # fixme                           BLR   Plotting
 #####################################################################################
 def blr_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
-    energy_axis_blr = np.logspace(2, 9, num=25)
+    energy_axis_blr = np.logspace(2, 11, num=25)
     # for  each point of energy_axis_cmb should be calculated flux_our_system(as an Y axis)
-    broad_line_flux = np.array([ssc_flux(j,B,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_blr])
+    broad_line_flux = np.array([blr_flux(j,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_blr])
     plt.figure(1,figsize=(16,4))
 
     energy_axis_synch = np.logspace(-5,2, num=25)
@@ -142,9 +142,9 @@ def torus_flux(synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_
 # fixme                           Torus   Plotting
 #####################################################################################
 def torus_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
-    energy_axis_torus = np.logspace(2, 9, num=25)
+    energy_axis_torus = np.logspace(2, 11, num=25)
     # for  each point of energy_axis_cmb should be calculated flux_our_system(as an Y axis)
-    dusty_torus_flux = np.array([ssc_flux(j,B,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_torus])
+    dusty_torus_flux = np.array([torus_flux(j,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_torus])
     plt.figure(1,figsize=(16,4))
 
     energy_axis_synch = np.logspace(-5,2, num=25)
