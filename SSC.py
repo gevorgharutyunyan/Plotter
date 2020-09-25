@@ -2,6 +2,7 @@ from Synchrotron import*
 from Constants import*
 
 
+
 #Lower limit of an integral for HE component on SED
 def low_limit_ssc(photon_eng,synch_photon):
     return 0.5*synch_photon*(1+np.sqrt(1+1/(synch_photon*photon_eng)))
@@ -85,7 +86,18 @@ def ssc_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
     ax2.tick_params(axis='y', labelcolor=color)
     ax2.set_yscale('log')
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    plt.show()
+    plot= st.pyplot(plt)
+    st.title('Synchrotron Self-Compton')
+    latest_iteration = st.empty()
+    bar = st.progress(0)
+    for i in range(len(energy_axis_ssc)+1):
+        # Update the progress bar with each iteration.
+        latest_iteration.text(f'Iteration {4*i}')
+        bar.progress(4*i)
+        time.sleep(0.1)
+
+    plot.pyplot(plt)
+    #plt.show()
 
 
 

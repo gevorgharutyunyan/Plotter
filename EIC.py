@@ -55,10 +55,20 @@ def cmb_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
     color = 'tab:blue'
     ax2.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)  # we already handled the x-label with ax1
     ax2.plot(energy_axis_cmb, cosmic_background, color=color)
+    plot1 = st.pyplot(plt)
+    st.title('External Inverse Compton CMB')
+    latest_iteration = st.empty()
+    bar = st.progress(0)
+    for i in range(len(energy_axis_cmb)+1):
+        # Update the progress bar with each iteration.
+        latest_iteration.text(f'Iteration {4*i}')
+        bar.progress(4*i)
+        time.sleep(0.1)
     ax2.tick_params(axis='y', labelcolor=color)
     ax2.set_yscale('log')
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    plt.show()
+    plot1.pyplot(plt)
+    #plt.show()
 
 
 #####################################################################################
@@ -117,10 +127,20 @@ def blr_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
     color = 'tab:blue'
     ax2.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)  # we already handled the x-label with ax1
     ax2.plot(energy_axis_blr, broad_line_flux, color=color)
+    plot2 = st.pyplot(plt)
+    st.title('External Inverse Compton BLR')
+    latest_iteration = st.empty()
+    bar = st.progress(0)
+    for i in range(len(energy_axis_blr)+1):
+        # Update the progress bar with each iteration.
+        latest_iteration.text(f'Iteration {4*i}')
+        bar.progress(4*i)
+        time.sleep(0.1)
     ax2.tick_params(axis='y', labelcolor=color)
     ax2.set_yscale('log')
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    plt.show()
+    plot2.pyplot(plt)
+    #plt.show()
 
 
 
@@ -177,8 +197,18 @@ def torus_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_boo
 
     color = 'tab:blue'
     ax2.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)  # we already handled the x-label with ax1
+    st.title('External Inverse Compton Torus')
     ax2.plot(energy_axis_torus, dusty_torus_flux, color=color)
+    plot3 = st.pyplot(plt)
+    latest_iteration = st.empty()
+    bar = st.progress(0)
+    for i in range(len(energy_axis_torus)+1):
+        # Update the progress bar with each iteration.
+        latest_iteration.text(f'Iteration {4*i}')
+        bar.progress(4*i)
+        time.sleep(0.1)
     ax2.tick_params(axis='y', labelcolor=color)
     ax2.set_yscale('log')
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    plt.show()
+    plot3.pyplot(plt)
+    #plt.show()

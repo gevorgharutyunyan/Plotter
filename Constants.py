@@ -2,7 +2,8 @@ from scipy.integrate import quad,trapz
 import matplotlib.pyplot as plt
 import numpy as np
 import math
-
+import  streamlit as st
+import time
 
 # Constants
 e = 4.8032 * 10 ** (-10)  # Electron charge

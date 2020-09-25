@@ -277,13 +277,21 @@ class Plotter_GUI:
             torus_plotter(self.magfield, self.alpha, self.alpha1, self.alpha2, self.cutOff, self.broken,
                     self.CutOff_Law.get(), self.Broken_Law.get())
 
-            self.main.destroy()
-
-
-
-
 
 root = Tk()
 root.configure(background='#E8FFDB')
 Plotter_GUI(root)
 root.mainloop()
+
+
+
+"""
+plt.plot(range(0, 10))
+scale_factor = 5
+
+xmin, xmax = plt.xlim()
+ymin, ymax = plt.ylim()
+
+plt.xlim(xmin * scale_factor, xmax * scale_factor)
+plt.ylim(ymin * scale_factor, ymax * scale_factor)
+"""
