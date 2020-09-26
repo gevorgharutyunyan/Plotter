@@ -4,6 +4,8 @@ import numpy as np
 import math
 import  streamlit as st
 import time
+import streamlit.components.v1 as components
+
 
 # Constants
 e = 4.8032 * 10 ** (-10)  # Electron charge
@@ -35,3 +37,4 @@ blr_radius = 10**17*(disc_luminosity/10**45)**0.5
 torus_temp = 1000 # temperature of torus
 
 torus_radius = 0.4*((disc_luminosity/10**45)**0.5)*((1500/torus_temp)**2.6)*parsec
+
