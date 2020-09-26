@@ -97,9 +97,4 @@ def ssc_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
         time.sleep(0.1)
 
     plot.pyplot(plt)
-    #plt.show()
 
-
-
-
-#ssc_plotter(0.07, None,2.4,4.5, None,2200, 0,1)

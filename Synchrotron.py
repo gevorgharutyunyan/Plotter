@@ -1,10 +1,12 @@
 from Constants import*
 
 # Power law functions
-"""
-Electron energy distribution can be power law with exponential cut off or broken power law.
-"""
-def PowerLawExpCutOff(alpha, gamma_cutOff, gamma):
+
+
+
+#Electron energy distribution can be power law with exponential cut off or broken power law.
+
+def PowerLawExpCutOff(alpha, gamma_cutOff, gamma,**kwargs):
 
     return N0 * (gamma ** (-alpha)) * np.exp(-(gamma / gamma_cutOff))
 
@@ -57,29 +59,8 @@ def luminosity(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cu
 # Energy on a per square in a per second will be luminosity divided to surface F = L/4*pi*R^2.
 # Considering Lorentz transformation formulas F should be multiplied by doppler factor ^4. F = delta^4*F'
 # As an energy unit are being used erg(for converting use ev to erg ratio).
-def flux_our_system(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
+def flux_our_system(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool,):
     return (doppler_factor**4)*1/(evtoerg*distance_surf)*luminosity(B, alpha,alpha_1,alpha_2,photon_eng*(1+red_shift)/doppler_factor, gamma_cutOff,gamma_break, cutOff_bool,broken_bool)
 
-
-def synchrotron_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
-    energy_axis = np.logspace(-9, 4, num=25)
-    # for  each point of energy_axis should be calculated flux_our_system(as a Y axis)
-    synchrotron_flux = np.array([flux_our_system(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis])
-    plt.figure(1,figsize=(16,4))
-    plt.loglog(energy_axis,synchrotron_flux,color="red")
-    plot = st.pyplot(plt)
-    plt.xlim(10**-8,10**8)
-    plt.ylim(10**-13,10**-8)
-    st.title('Synchrotron')
-    latest_iteration = st.empty()
-    bar = st.progress(0)
-    for i in range(len(energy_axis)+1):
-        # Update the progress bar with each iteration.
-        latest_iteration.text(f'Iteration {4*i}')
-        bar.progress(4*i)
-        time.sleep(0.1)
-
-    plot.pyplot(plt)
-    #plt.show()
 
 
