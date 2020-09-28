@@ -6,21 +6,23 @@ import  streamlit as st
 import time
 import streamlit.components.v1 as components
 
+st.markdown("""<h1>A simple tool for SED plotting  </h1>""", unsafe_allow_html=True)
 
 electron_num       = st.sidebar.number_input("Number of electrons", value=float(1.5 * 10 ** (56)),step=float(1))
 dopplerFactor      = st.sidebar.number_input("Doppler factor", value=float(20), step=0.1)
-distance_of_source = st.sidebar.number_input("Distance from a source", value=float(1.7896929972 * 10 ** (28)))
+distance_of_source = st.sidebar.number_input("Distance from a source [cm]", value=float(1.7896929972 * 10 ** (28)))
 redShift           = st.sidebar.number_input("Red shift", value=float(0.9))
-gammaMin           = st.sidebar.number_input("Minimum energy of an electron", value=float(1))
-gammaMax           = st.sidebar.number_input("Maximum energy of an electron", value=float(2.4*10**4))
+gammaMin           = st.sidebar.number_input("Minimum energy of an electron [gamma]", value=float(1))
+gammaMax           = st.sidebar.number_input("Maximum energy of an electron [gamma]", value=float(2.4*10**4))
 thettaBLR          = st.sidebar.number_input("Reflection coefficient for broad line region", value=float(0.6))
 thettaTorus        = st.sidebar.number_input("Reflection coefficient for Torus", value=float(0.6))
-discLuminosity     = st.sidebar.number_input("Luminosity of the accretion disc", value=float(1.4*10**43))
-blrTemp            = st.sidebar.number_input("Temperature of BLR", value=float(116045))
-blrRadius          = st.sidebar.number_input("Radius of BLR", value=float(10**17*(discLuminosity/10**45)**0.5))
-torusTemp          = st.sidebar.number_input("Temperature of Torus", value=float(1000))
-blobRadius         = st.sidebar.number_input("Radus of an emission region", value= float(1.6*10**17))
-torusRadius        = st.sidebar.number_input("Radius of Torus", value=float(0.4*((discLuminosity/10**45)**0.5)*((1500/torusTemp)**2.6)*(3.086*10**18)))
+discLuminosity     = st.sidebar.number_input("Luminosity of the accretion disc [Erg s^-1]", value=float(1.4*10**43))
+blrTemp            = st.sidebar.number_input("Temperature of BLR [K]", value=float(116045))
+blrRadius          = st.sidebar.number_input("Radius of BLR [cm]", value=float(10**17*(discLuminosity/10**45)**0.5))
+torusTemp          = st.sidebar.number_input("Temperature of Torus [K]", value=float(1000))
+blobRadius         = st.sidebar.number_input("Radus of an emission region [cm]", value= float(1.6*10**17))
+torusRadius        = st.sidebar.number_input("Radius of Torus  [cm]", value=float(0.4*((discLuminosity/10**45)**0.5)*((1500/torusTemp)**2.6)*(3.086*10**18)))
+
 
 
 
@@ -85,19 +87,16 @@ def law_selection(cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma,gamma_cutO
 def char_energy(B, gamma):
     return (3 * e * h * B * (gamma ** 2)) / (2 * m * c)
 
-
 # Bessel's function
 def bessel_function(x):
     return (2.15 * (x) ** (1 / 3)) * (
                 ((1 + 3.06 * (x)) ** (1 / 6)) * (1 + (0.884 * (x) ** (2 / 3)) + (0.471 * (x) ** (4 / 3)))) / (
                        1 + (1.64 * (x) ** (2 / 3)) + (0.974 * (x) ** (4 / 3))) * np.exp((-x))
 
-
 # Quantity of emitted photons in per second with E energy(Differential spectrum dN/dE*dt)
 def diff_spectrum(photon_eng, B, gamma):
     return ((np.sqrt(3) * (e ** 3) * B) / (2 * np.pi * restenergy * h * photon_eng)) * bessel_function(
        photon_eng / char_energy(B, gamma))
-
 
 # spectrum for a group of electrons
 def emission_spectrum(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
@@ -105,44 +104,31 @@ def emission_spectrum(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_br
     quad(lambda j: (10 ** j) * (math.log(10)) * diff_spectrum(photon_eng, B, 10 ** j) * law_selection(cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,10 ** j,gamma_cutOff,gamma_break),
          np.log10(gamma_min), np.log10(gamma_max))[0]
 
-
-
 # Bolometric Synchrotron luminosity wich we get multiplying emission spectrum by square of photon energy(erg s^-1)
 def luminosity(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
     return photon_eng**2*emission_spectrum(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool)
 
 
-
 # Energy on a per square in a per second will be luminosity divided to surface F = L/4*pi*R^2.
 # Considering Lorentz transformation formulas F should be multiplied by doppler factor ^4. F = delta^4*F'
 # As an energy unit are being used erg(for converting use ev to erg ratio).
-def flux_our_system(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool,):
+def synch_flux(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool,):
     return (doppler_factor**4)*1/(evtoerg*distance_surf)*luminosity(B, alpha,alpha_1,alpha_2,photon_eng*(1+red_shift)/doppler_factor, gamma_cutOff,gamma_break, cutOff_bool,broken_bool)
-
-
-########################################################################################################
-#fixme                              Synchrotron Self-Compton
-########################################################################################################
-
-
-#Lower limit of an integral for HE component on SED
-def low_limit_ssc(photon_eng,synch_photon):
-    return 0.5*synch_photon*(1+np.sqrt(1+1/(synch_photon*photon_eng)))
-
 
 #####################################################################################
 # fixme                        Cross-Section
 #####################################################################################
-"""
-Cross section defines probability of an interaction between photon and electron.
-Photons can be produced after synchrotron radiation(SSC), come from dusty Torus,
-BLR and CMB.
-"""
+
+#Cross section defines probability of an interaction between photon and electron.
+#Photons can be produced after synchrotron radiation(SSC), come from dusty Torus,
+#BLR and CMB.
+
 def bulk_gamma(gamma, photon_eng):
     return 4 * gamma * (photon_eng / restenergy)
 
 def cross_q(gamma,photon_eng,synch_photon):
     return (synch_photon*inverse_restEng/gamma)/(4*photon_eng*inverse_restEng*gamma*(1-inverse_restEng*synch_photon/gamma))
+
 def cross_section(gamma,photon_eng,synch_photon):
     bulk = bulk_gamma(gamma, photon_eng)
     q = (cross_q(gamma,photon_eng,synch_photon))
@@ -154,8 +140,16 @@ def if_statement(gamma,photon_eng,synch_photon):
     else:
         return 0
 
+
+########################################################################################################
+#fixme                              Synchrotron Self-Compton
+########################################################################################################
+
+#Lower limit of an integral for HE component on SED
+def low_limit_ssc(photon_eng,synch_photon):
+    return 0.5*synch_photon*(1+np.sqrt(1+1/(synch_photon*photon_eng)))
 #####################################################################################
-# fixme             EnergyDensity-Distribution-Luminosity-Flux
+# fixme             EnergyDensity-Distribution-Luminosity-Flux SSC
 #####################################################################################
 # for SSC it is taking account photons produced by synchrotron emission and
 # energy density defines as blob luminosity divided to blob volume
@@ -163,11 +157,9 @@ def ssc_eng_density(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_brea
     return (3*luminosity(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break, cutOff_bool,broken_bool))\
            /(evtoerg*4*np.pi*c*(blob_radius**2))
 
-
 # for SSC mechanisms spectrum from many electrons is calculated by this formula
 def ic_el_dist(photon_eng,synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break):
     return quad(lambda i:(10**i)*np.log(10)*(law_selection(cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,10**i,gamma_cutOff,gamma_break)/10**(2*i))*if_statement(10**i,photon_eng,synch_photon),np.log10(low_limit_ssc(photon_eng/restenergy,synch_photon/restenergy)),np.log10(gamma_max))[0]
-
 
 def ssc_luminosity(synch_photon,B,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break):
     return  quad(lambda photon_eng: 0.75*c*sigma* (synch_photon**2)*(ssc_eng_density(B, alpha,alpha_1,alpha_2,photon_eng, gamma_cutOff,gamma_break,cutOff_bool,broken_bool)/photon_eng**3)*ic_el_dist(photon_eng,synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break),0,np.inf)[0]
@@ -177,13 +169,9 @@ def ssc_flux(synch_photon,B,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_
     return ((doppler_factor**4)*ssc_luminosity((synch_photon*(1+red_shift))/doppler_factor,B,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break))/distance_surf
 
 
-
-
-
 ########################################################################################################
 #fixme                                External Inverse Compton
 ########################################################################################################
-
 
 #####################################################################################
 # fixme               energy density-luminosity-flux for CMB
@@ -202,21 +190,17 @@ def cmb_luminosity(synch_photon,cutOff_bool, broken_bool, alpha, alpha_1, alpha_
 def cmb_flux(synch_photon,cutOff_bool, broken_bool, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break):
     return (doppler_factor**4*evtoerg*cmb_luminosity(synch_photon/doppler_factor,cutOff_bool, broken_bool, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break))/distance_surf
 
-
-
 #####################################################################################
 # fixme           energy density-luminosity-flux for BLR
 #####################################################################################
-"""
-BLR stands for Broad Line Region. Emission line profiles in this region are broad.It is far from central black hole but 
-accretion disc emission(photons) can rich and be reflected from BLR clouds.Reflected photons interact with emission region
-and produce HE component. 
-"""
+
+#BLR stands for Broad Line Region. Emission line profiles in this region are broad.It is far from central black hole but
+#accretion disc emission(photons) can rich and be reflected from BLR clouds.Reflected photons interact with emission region
+#and produce HE component.
 
 def luminosity_from_disc_blr(photon_eng):
     fraction = photon_eng/(k*blr_temp)
     return ((15*fraction**4)*thetta_blr*disc_luminosity)/(np.pi**4*(np.exp(fraction)-1))
-
 
 def blr_eng_density(photon_eng):
     return luminosity_from_disc_blr(photon_eng)/(4*np.pi*c*(blr_radius**2))
@@ -224,20 +208,17 @@ def blr_eng_density(photon_eng):
 def blr_luminosity(synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break):
     return  quad(lambda photon_eng: 0.75*c*sigma* (synch_photon**2)*(blr_eng_density(photon_eng/doppler_factor)/photon_eng**3)*ic_el_dist(photon_eng,synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break),0,np.inf)[0]
 
-
-
 def blr_flux(synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break):
     return (doppler_factor**6*blr_luminosity((synch_photon*(1+red_shift))/doppler_factor,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break))/distance_surf
-
 
 
 #####################################################################################
 # fixme           energy density-luminosity-flux for TORUS
 #####################################################################################
-"""
-Torus produces infrared photons and fills huge volume with them. Out of BLR are torus photons which have low energy and
-after scattering energy increases up to GeV.
-"""
+
+#Torus produces infrared photons and fills huge volume with them. Out of BLR are torus photons which have low energy and
+#after scattering energy increases up to GeV.
+
 def luminosity_from_disc_torus(photon_eng):
     fraction = photon_eng/(k*torus_temp)
     return ((15*fraction**4)*thetta_torus*disc_luminosity)/(np.pi**4*(np.exp(fraction)-1))
@@ -245,36 +226,40 @@ def luminosity_from_disc_torus(photon_eng):
 def torus_eng_density(photon_eng):
     return luminosity_from_disc_torus(photon_eng)/(4*np.pi*c*(torus_radius**2))
 
-
 def torus_luminosity(synch_photon, cutOff_bool, broken_bool, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break):
     return quad(lambda photon_eng: 0.75 * c * sigma * (synch_photon ** 2) * (
                 torus_eng_density(photon_eng / doppler_factor) / photon_eng ** 3) * ic_el_dist(photon_eng,synch_photon, cutOff_bool,
                 broken_bool, alpha,alpha_1, alpha_2,gamma_cutOff, gamma_break), 0,np.inf)[0]
 
-
 def torus_flux(synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break):
     return (doppler_factor**6*torus_luminosity((synch_photon*(1+red_shift))/doppler_factor,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break))/distance_surf
 
 
+#####################################################################################
+# fixme                          Synchrotron Plotting
+#####################################################################################
+def synchrotron_plotter(B, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break, cutOff_bool, broken_bool):
 
-########################################################################################################
-########################################################################################################
-#fixme                              Synchrotron Plotting
-########################################################################################################
-########################################################################################################
+    with st.spinner('In progress...'):
+         time.sleep(5)
 
-def synchrotron_plotter(B, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break, cutOff_bool, broken_bool,kwargs = {"N0" : 1.5 * 10 ** (56)}):
     energy_axis = np.logspace(-9, 4, num=25)
-    # for  each point of energy_axis should be calculated flux_our_system(as a Y axis)
+    max_x = np.max(energy_axis)
+    min_x = np.min(energy_axis)
+    # for  each point of energy_axis should be calculated synch_flux(as a Y axis)
     synchrotron_flux = np.array(
-        [flux_our_system(B, alpha, alpha_1, alpha_2, i, gamma_cutOff, gamma_break, cutOff_bool, broken_bool) for i in
+        [synch_flux(B, alpha, alpha_1, alpha_2, i, gamma_cutOff, gamma_break, cutOff_bool, broken_bool) for i in
          energy_axis])
-    plt.figure(1, figsize=(16, 4))
-    plt.loglog(energy_axis, synchrotron_flux, color="red")
-    plot = st.pyplot(plt)
-    plt.xlim(10 ** -8, 10 ** 8)
-    plt.ylim(10 ** -13, 10 ** -8)
-    st.title('Synchrotron')
+    maxElement = np.amax(synchrotron_flux)
+
+    fig, ax = plt.subplots(figsize=(16, 4))
+    ax.set_xlabel('E [eV]')
+    ax.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$")
+    ax.plot(energy_axis, synchrotron_flux, color="red")
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.legend(['Synchrotron'])
+    st.title('Synchrotron flux versus emitted photon energy')
     latest_iteration = st.empty()
     bar = st.progress(0)
     for i in range(len(energy_axis) + 1):
@@ -282,25 +267,34 @@ def synchrotron_plotter(B, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break, c
         latest_iteration.text(f'Iteration {4 * i}')
         bar.progress(4 * i)
         time.sleep(0.1)
-
+    plot = st.pyplot(plt)
+    ax.set_xlim(min_x, max_x)
+    ax.set_ylim(10 ** (-14), maxElement*5)
     plot.pyplot(plt)
-
-
 
 #####################################################################################
 # fixme                            SSC Plotting
 #####################################################################################
+
 def ssc_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
+
+    with st.spinner('In progress...'):
+         time.sleep(5)
     energy_axis_ssc = np.logspace(2, 9, num=25)
-    # for  each point of energy_axis_ssc should be calculated flux_our_system(as an Y axis)
+    # for  each point of energy_axis_ssc should be calculated synch_flux(as an Y axis)
     self_synchrotron_flux = np.array([ssc_flux(j,B,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_ssc])
     plt.figure(1,figsize=(16,4))
+    maxElement_ssc = np.amax(self_synchrotron_flux)
+    minElement_ssc = np.amin(self_synchrotron_flux)
 
     energy_axis_synch = np.logspace(-5,2, num=25)
 
-    # for  each point of energy_axis should be calculated flux_our_system(as a Y axis)
-    synchrotron_flux = np.array([flux_our_system(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis_synch])
-
+    # for  each point of energy_axis should be calculated synch_flux(as a Y axis)
+    synchrotron_flux = np.array([synch_flux(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis_synch])
+    maxElement_synch = np.amax(synchrotron_flux)
+    minElement_synch = np.amin(synchrotron_flux)
+    max_x = np.max(energy_axis_ssc)
+    min_x = np.min(energy_axis_ssc)
     fig, ax1 = plt.subplots(figsize=(16, 4))
     color = 'tab:red'
     ax1.set_xlabel('E [eV]')
@@ -309,6 +303,9 @@ def ssc_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
     ax1.tick_params(axis='y', labelcolor=color)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
+    ax1.legend(['Synchrotron'])
+    #ax1.set_xlim(min_x, max_x)
+    ax1.set_ylim(minElement_synch*5, maxElement_synch*5)
 
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
@@ -318,9 +315,10 @@ def ssc_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
     ax2.plot(energy_axis_ssc, self_synchrotron_flux, color=color)
     ax2.tick_params(axis='y', labelcolor=color)
     ax2.set_yscale('log')
+    ax2.legend(['SSC'],loc='upper right', bbox_to_anchor=(0.4, 0.4, 0.6, 0.5))
+    ax2.set_ylim(minElement_ssc*5,maxElement_ssc*5)
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    plot= st.pyplot(plt)
-    st.title('Synchrotron Self-Compton')
+    st.title('Synchrotron + SSC')
     latest_iteration = st.empty()
     bar = st.progress(0)
     for i in range(len(energy_axis_ssc)+1):
@@ -328,6 +326,8 @@ def ssc_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
         latest_iteration.text(f'Iteration {4*i}')
         bar.progress(4*i)
         time.sleep(0.1)
+    plot= st.pyplot(plt)
+
 
     plot.pyplot(plt)
 
@@ -336,15 +336,25 @@ def ssc_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
 # fixme                           CMB   Plotting
 #####################################################################################
 def cmb_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
+
+    with st.spinner('In progress...'):
+         time.sleep(5)
+
     energy_axis_cmb = np.logspace(2, 11, num=25)
-    # for  each point of energy_axis_cmb should be calculated flux_our_system(as an Y axis)
+    # for  each point of energy_axis_cmb should be calculated synch_flux(as an Y axis)
     cosmic_background = np.array([cmb_flux(j,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_cmb])
     plt.figure(1,figsize=(16,4))
-
+    maxElement_cosmic = np.amax(cosmic_background)
+    minElement_cosmic = np.amin(cosmic_background)
+    max_x = np.max(energy_axis_cmb)
+    min_x = np.min(energy_axis_cmb)
     energy_axis_synch = np.logspace(-5,2, num=25)
 
-    # for  each point of energy_axis should be calculated flux_our_system(as a Y axis)
-    synchrotron_flux = np.array([flux_our_system(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis_synch])
+
+    # for  each point of energy_axis should be calculated synch_flux(as a Y axis)
+    synchrotron_flux = np.array([synch_flux(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis_synch])
+    maxElement_synch = np.amax(synchrotron_flux)
+    minElement_synch = np.amin(synchrotron_flux)
 
     fig, ax1 = plt.subplots(figsize=(16, 4))
     color = 'tab:red'
@@ -354,14 +364,17 @@ def cmb_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
     ax1.tick_params(axis='y', labelcolor=color)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
+    ax1.legend(['Synchrotron'])
+
+    ax1.set_ylim(minElement_synch * 5, maxElement_synch * 5)
 
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
     color = 'tab:blue'
     ax2.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)  # we already handled the x-label with ax1
     ax2.plot(energy_axis_cmb, cosmic_background, color=color)
-    plot1 = st.pyplot(plt)
-    st.title('External Inverse Compton CMB')
+    ax2.legend(['EIC (CMB)'],loc='upper right', bbox_to_anchor=(0.4, 0.4, 0.6, 0.5))
+    st.title('Synchrotron + EIC [CMB]')
     latest_iteration = st.empty()
     bar = st.progress(0)
     for i in range(len(energy_axis_cmb)+1):
@@ -369,8 +382,12 @@ def cmb_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
         latest_iteration.text(f'Iteration {4*i}')
         bar.progress(4*i)
         time.sleep(0.1)
+    plot1 = st.pyplot(plt)
+
     ax2.tick_params(axis='y', labelcolor=color)
     ax2.set_yscale('log')
+    #ax2.set_xlim(min_x, max_x)
+    ax2.set_ylim(minElement_cosmic*5,maxElement_cosmic*10)
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plot1.pyplot(plt)
 
@@ -380,16 +397,26 @@ def cmb_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
 #####################################################################################
 
 def blr_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
+
+    with st.spinner('In progress...'):
+         time.sleep(5)
+
     energy_axis_blr = np.logspace(2, 11, num=25)
-    # for  each point of energy_axis_cmb should be calculated flux_our_system(as an Y axis)
+    # for  each point of energy_axis_cmb should be calculated synch_flux(as an Y axis)
     broad_line_flux = np.array([blr_flux(j,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_blr])
     plt.figure(1,figsize=(16,4))
+    maxElement_blr = np.amax(broad_line_flux)
+    minElement_blr = np.amin(broad_line_flux)
+    max_x = np.max(energy_axis_blr)
+    min_x = np.min(energy_axis_blr)
+
 
     energy_axis_synch = np.logspace(-5,2, num=25)
 
-    # for  each point of energy_axis should be calculated flux_our_system(as a Y axis)
-    synchrotron_flux = np.array([flux_our_system(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis_synch])
-
+    # for  each point of energy_axis should be calculated synch_flux(as a Y axis)
+    synchrotron_flux = np.array([synch_flux(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis_synch])
+    maxElement_synch = np.amax(synchrotron_flux)
+    minElement_synch = np.amin(synchrotron_flux)
     fig, ax1 = plt.subplots(figsize=(16, 4))
     color = 'tab:red'
     ax1.set_xlabel('E [eV]')
@@ -398,14 +425,19 @@ def blr_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
     ax1.tick_params(axis='y', labelcolor=color)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
+    ax1.legend(['Synchrotron'])
+
+    ax1.set_ylim(minElement_synch * 5, maxElement_synch * 5)
 
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
     color = 'tab:blue'
     ax2.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)  # we already handled the x-label with ax1
     ax2.plot(energy_axis_blr, broad_line_flux, color=color)
-    plot2 = st.pyplot(plt)
-    st.title('External Inverse Compton BLR')
+    #ax2.set_xlim(min_x, max_x)
+    ax2.set_ylim(minElement_blr*5,maxElement_blr*5)
+    ax2.legend(['EIC (BLR)'],loc='upper right', bbox_to_anchor=(0.4, 0.4, 0.6, 0.5))
+    st.title('Synchrotron + EIC [BLR]')
     latest_iteration = st.empty()
     bar = st.progress(0)
     for i in range(len(energy_axis_blr)+1):
@@ -413,6 +445,8 @@ def blr_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
         latest_iteration.text(f'Iteration {4*i}')
         bar.progress(4*i)
         time.sleep(0.1)
+    plot2 = st.pyplot(plt)
+
     ax2.tick_params(axis='y', labelcolor=color)
     ax2.set_yscale('log')
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
@@ -423,16 +457,24 @@ def blr_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
 # fixme                           Torus   Plotting
 #####################################################################################
 def torus_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,broken_bool):
+
+    with st.spinner('In progress...'):
+         time.sleep(5)
+
     energy_axis_torus = np.logspace(2, 11, num=25)
-    # for  each point of energy_axis_cmb should be calculated flux_our_system(as an Y axis)
+    # for  each point of energy_axis_cmb should be calculated synch_flux(as an Y axis)
     dusty_torus_flux = np.array([torus_flux(j,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_torus])
     plt.figure(1,figsize=(16,4))
-
+    maxElement_torus = np.amax(dusty_torus_flux)
+    minElement_torus = np.amin(dusty_torus_flux)
+    max_x = np.max(energy_axis_torus)
+    min_x = np.min(energy_axis_torus)
     energy_axis_synch = np.logspace(-5,2, num=25)
 
-    # for  each point of energy_axis should be calculated flux_our_system(as a Y axis)
-    synchrotron_flux = np.array([flux_our_system(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis_synch])
-
+    # for  each point of energy_axis should be calculated synch_flux(as a Y axis)
+    synchrotron_flux = np.array([synch_flux(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis_synch])
+    maxElement_synch = np.amax(synchrotron_flux)
+    minElement_synch = np.amin(synchrotron_flux)
     fig, ax1 = plt.subplots(figsize=(16, 4))
     color = 'tab:red'
     ax1.set_xlabel('E [eV]')
@@ -441,14 +483,14 @@ def torus_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_boo
     ax1.tick_params(axis='y', labelcolor=color)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
+    ax1.legend(['Synchrotron'])
+    #ax1.set_xlim(min_x, max_x)
+    ax1.set_ylim(minElement_synch * 5, maxElement_synch * 5)
 
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
     color ='tab:blue'
-    ax2.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)  # we already handled the x-label with ax1
-    st.title('External Inverse Compton Torus')
-    ax2.plot(energy_axis_torus, dusty_torus_flux, color=color)
-    plot3 = st.pyplot(plt)
+
     latest_iteration = st.empty()
     bar = st.progress(0)
     for i in range(len(energy_axis_torus)+1):
@@ -456,6 +498,13 @@ def torus_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_boo
         latest_iteration.text(f'Iteration {4*i}')
         bar.progress(4*i)
         time.sleep(0.1)
+    ax2.plot(energy_axis_torus, dusty_torus_flux, color=color)
+    ax2.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)  # we already handled the x-label with ax1
+    ax2.set_ylim(minElement_torus*5,maxElement_torus*5)
+    ax2.legend(['EIC (Torus)'],loc='upper right', bbox_to_anchor=(0.4, 0.4, 0.6, 0.5))
+    st.title('Synchrotron + EIC [Torus]')
+    plot3 = st.pyplot(plt)
+
     ax2.tick_params(axis='y', labelcolor=color)
     ax2.set_yscale('log')
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
@@ -472,9 +521,9 @@ select_mechanism = st.selectbox('Choose from mehcanisms ', ('Select','Synchrotro
 if select_mechanism=="Synchrotron":
     select_power_law = st.selectbox('Choose from power laws ', ('Select', 'Exp. Cut-Off', 'Broken Law'), index=0)
     if select_power_law=='Exp. Cut-Off':
-        mag_filed   = st.number_input('Magnetic Filed', min_value=float(0), max_value=float(5), step=0.01)
-        alpha       = st.number_input('Cut-Off alpha',  min_value=float(0), max_value=float(5), step=0.01)
-        cut_off_eng = st.number_input('Cut-Off energy', min_value=float(0), max_value=float(10**5), step=float(100))
+        mag_filed   = st.number_input('Magnetic Filed', min_value=float(0.61), max_value=float(5), step=0.01)
+        alpha       = st.number_input('Cut-Off alpha',  min_value=float(2.1), max_value=float(5), step=0.01)
+        cut_off_eng = st.number_input('Cut-Off energy', min_value=float(2500), max_value=float(10**5), step=float(100))
         plot_btn = st.button("Plot")
         if plot_btn:
             synchrotron_plotter(mag_filed, alpha, None, None, cut_off_eng, None, 1, 0)
@@ -540,3 +589,8 @@ elif select_mechanism == 'EIC':
             if plot_btn:
                 torus_plotter(mag_filed, None, alpha1, alpha2, None, broken_eng, 0, 1)
 
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+local_css("style.css")

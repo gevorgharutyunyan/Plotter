@@ -2,20 +2,17 @@ from Constants import*
 
 # Power law functions
 
-
-
 #Electron energy distribution can be power law with exponential cut off or broken power law.
 
 def PowerLawExpCutOff(alpha, gamma_cutOff, gamma,**kwargs):
 
-    return N0 * (gamma ** (-alpha)) * np.exp(-(gamma / gamma_cutOff))
+    return kwargs["N0"] * (gamma ** (-alpha)) * np.exp(-(gamma / gamma_cutOff))
 
-
-def BrokenPowerLaw(alpha_1,alpha_2,gamma_break,gamma):
+def BrokenPowerLaw(alpha_1,alpha_2,gamma_break,gamma,**kwargs):
     if gamma < gamma_break:
         return N0*gamma**(-alpha_1)
     else:
-        return gamma_break**(alpha_2-alpha_1)*N0*gamma**(-alpha_2)
+        return gamma_break**(alpha_2-alpha_1)*kwargs["N0"]*gamma**(-alpha_2)
 
 # Choose from two laws with booleans
 def law_selection(cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma,gamma_cutOff,gamma_break):

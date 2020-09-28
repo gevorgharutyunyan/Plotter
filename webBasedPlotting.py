@@ -1,13 +1,14 @@
 from EIC import *
+from Constants import *
 
-v= st.beta_color_picker('Pick A Color', '#00f900')
+
 ########################################################################################################
 ########################################################################################################
 #fixme                                Plotting Synchrotron
 ########################################################################################################
 ########################################################################################################
 
-def synchrotron_plotter(B, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break, cutOff_bool, broken_bool):
+def synchrotron_plotter(B, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break, cutOff_bool, broken_bool,kwargs = {"N0" : 1.5 * 10 ** (56)}):
     energy_axis = np.logspace(-9, 4, num=25)
     # for  each point of energy_axis should be calculated flux_our_system(as a Y axis)
     synchrotron_flux = np.array(
@@ -28,6 +29,7 @@ def synchrotron_plotter(B, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break, c
         time.sleep(0.1)
 
     plot.pyplot(plt)
+
 
 
 #####################################################################################
@@ -187,7 +189,7 @@ def torus_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_boo
 
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
-    color = v
+    color ='tab:blue'
     ax2.set_ylabel(r"$\nu F(\nu)\/ (erg\/cm^{-2} s^{-1})$", color=color)  # we already handled the x-label with ax1
     st.title('External Inverse Compton Torus')
     ax2.plot(energy_axis_torus, dusty_torus_flux, color=color)
@@ -282,7 +284,4 @@ elif select_mechanism == 'EIC':
             plot_btn = st.button("Plot")
             if plot_btn:
                 torus_plotter(mag_filed, None, alpha1, alpha2, None, broken_eng, 0, 1)
-
-
-
 

@@ -1,18 +1,15 @@
 body {
-    color: #fff;
-    background-color: #4F8BF9;
+    color: #93bca8;
+    background-color: #B0E0E6
 }
 
+.stMarkdown {
+    color: #000000;
+}
 .stButton>button {
     color: #4F8BF9;
     border-radius: 50%;
     height: 3em;
-    width: 3em;
-}
-.stSelectBox>div>div>input{
-    color: red;
-    border-radius: 10%;
-    height: 88em;
     width: 3em;
 }
 
