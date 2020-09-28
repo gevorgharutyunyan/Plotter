@@ -238,6 +238,7 @@ def torus_flux(synch_photon,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_
 #####################################################################################
 # fixme                          Synchrotron Plotting
 #####################################################################################
+
 def synchrotron_plotter(B, alpha, alpha_1, alpha_2, gamma_cutOff, gamma_break, cutOff_bool, broken_bool):
 
     with st.spinner('In progress...'):
@@ -340,7 +341,7 @@ def cmb_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
     with st.spinner('In progress...'):
          time.sleep(5)
 
-    energy_axis_cmb = np.logspace(2, 11, num=25)
+    energy_axis_cmb = np.logspace(2, 9, num=25)
     # for  each point of energy_axis_cmb should be calculated synch_flux(as an Y axis)
     cosmic_background = np.array([cmb_flux(j,cutOff_bool,broken_bool,alpha,alpha_1,alpha_2,gamma_cutOff,gamma_break) for j in energy_axis_cmb])
     plt.figure(1,figsize=(16,4))
@@ -349,7 +350,7 @@ def cmb_plotter(B, alpha,alpha_1,alpha_2, gamma_cutOff,gamma_break, cutOff_bool,
     max_x = np.max(energy_axis_cmb)
     min_x = np.min(energy_axis_cmb)
     energy_axis_synch = np.logspace(-5,2, num=25)
-
+    print(maxElement_cosmic,minElement_cosmic)
 
     # for  each point of energy_axis should be calculated synch_flux(as a Y axis)
     synchrotron_flux = np.array([synch_flux(B, alpha,alpha_1,alpha_2, i, gamma_cutOff,gamma_break, cutOff_bool,broken_bool) for i in energy_axis_synch])
@@ -534,6 +535,7 @@ if select_mechanism=="Synchrotron":
         broken_eng = st.number_input('Broken energy', min_value=float(0), max_value=float(100000), step=float(100))
         if st.button("Plot"):
             synchrotron_plotter(mag_filed, None, alpha1, alpha2, None, broken_eng, 0, 1)
+
 elif select_mechanism=='SSC':
     select_power_law = st.selectbox('Choose from power laws ', ('Select', 'Exp. Cut-Off', 'Broken Law'), index=0)
     if select_power_law=='Exp. Cut-Off':
