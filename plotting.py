@@ -6,7 +6,7 @@ import  streamlit as st
 import time
 import streamlit.components.v1 as components
 
-st.markdown("""<h1>A simple tool for SED plotting  </h1>""", unsafe_allow_html=True)
+st.markdown("""<h2>A simple tool for SED plotting  </h2>""", unsafe_allow_html=True)
 
 electron_num       = st.sidebar.number_input("Number of electrons", value=float(1.5 * 10 ** (56)),step=float(1))
 dopplerFactor      = st.sidebar.number_input("Doppler factor", value=float(20), step=0.1)
